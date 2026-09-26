@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Silsila — aide au diagnostic des maladies génétiques rares au Maghreb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6FB; --surface:#FFFFFF; --sunk:#EDEFF7; --ink:#191A45; --ink2:#4F5179; --ink3:#77799C; --line:#DDE0EE; --line2:#C9CCE0;
+  --maj:#3F34C2; --maj2:#6258DE; --majs:#ECEBFB; --saff:#B87D06; --saffs:#FBF0D8;
+  --for:#147657; --fors:#DFF2EA; --against:#B8372F; --againsts:#FAE5E2; --other:#8A8CAB; --mod:#C98A0C;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --r1:6px; --r2:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E0F2A; --surface:#16173A; --sunk:#1C1E48; --ink:#ECECF8; --ink2:#B6B8D8; --ink3:#8A8CB2; --line:#2A2C5C; --line2:#3A3D74;
+    --maj:#A097FF; --maj2:#BDB6FF; --majs:#26246B; --saff:#F0B640; --saffs:#3A2D0E;
+    --for:#43C698; --fors:#10392D; --against:#FF7D72; --againsts:#40191A; --other:#9294BA; --mod:#E8AE3A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E0F2A; --surface:#16173A; --sunk:#1C1E48; --ink:#ECECF8; --ink2:#B6B8D8; --ink3:#8A8CB2; --line:#2A2C5C; --line2:#3A3D74;
+  --maj:#A097FF; --maj2:#BDB6FF; --majs:#26246B; --saff:#F0B640; --saffs:#3A2D0E;
+  --for:#43C698; --fors:#10392D; --against:#FF7D72; --againsts:#40191A; --other:#9294BA; --mod:#E8AE3A;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px);}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased;}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--maj)}
+:focus-visible{outline:2px solid var(--maj);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* ---------- header ---------- */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:22px;max-width:1440px;margin:0 auto;padding:10px 24px;min-height:62px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0}
+.brand svg{width:30px;height:30px}
+.brand b{font:600 25px/1 var(--serif);letter-spacing:-.01em}
+.brand small{display:block;font:12px/1.2 var(--sans);color:var(--ink3);margin-top:3px;max-width:230px}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{border:0;background:none;padding:8px 12px;border-radius:8px;color:var(--ink2);cursor:pointer;white-space:nowrap;font-weight:700;font-size:14px}
+nav.tabs button:hover{background:var(--sunk);color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:var(--maj);background:var(--majs)}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;padding:2px;background:var(--surface);flex-shrink:0}
+.seg button{border:0;background:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--ink2)}
+.seg button[aria-pressed="true"]{background:var(--maj);color:#fff}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{color:#14133a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{color:#14133a}}
+.calib{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink3)}
+main{max-width:1440px;margin:0 auto;padding:22px 24px 60px}
+section.view{display:none}
+section.view.on{display:block}
+/* ---------- diagnostic layout ---------- */
+.diag{display:grid;grid-template-columns:minmax(320px,390px) 1fr;gap:26px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2)}
+.patient{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto;padding:18px 18px 22px}
+.patient h2,.res h2,.card h2{font:600 20px/1.2 var(--serif);margin:0 0 4px}
+.hint{color:var(--ink3);font-size:13px;margin:0 0 12px}
+.lbl{display:block;font-weight:700;font-size:13px;color:var(--ink2);margin:16px 0 6px}
+textarea{width:100%;min-height:118px;resize:vertical;border:1px solid var(--line2);border-radius:8px;padding:10px 11px;background:var(--paper);line-height:1.45;font-size:14px}
+textarea:focus,input[type=search]:focus{outline:2px solid var(--maj);outline-offset:0;border-color:transparent}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:700;font-size:13.5px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--maj);color:var(--maj)}
+.btn.pri{background:var(--maj);border-color:var(--maj);color:#fff}
+.btn.pri:hover{background:var(--maj2);color:#fff}
+:root[data-theme="dark"] .btn.pri,:root[data-theme="dark"] .btn.pri:hover{color:#14133a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.pri,:root:not([data-theme="light"]) .btn.pri:hover{color:#14133a}}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn.ghost{border-color:transparent;background:none;color:var(--ink2);padding:6px 8px}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+.status{font-size:12.5px;color:var(--ink3);min-height:18px;margin-top:6px}
+.demos{display:flex;flex-wrap:wrap;gap:6px}
+.demos button{border:1px dashed var(--line2);background:none;border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;color:var(--ink2)}
+.demos button:hover{border-style:solid;border-color:var(--maj);color:var(--maj)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:3px 4px 3px 9px;font-size:13px;max-width:100%}
+.chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chip span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip button{border:0;background:none;cursor:pointer;color:var(--ink3);width:22px;height:22px;border-radius:50%;line-height:1;font-size:15px;display:grid;place-items:center}
+.chip button:hover{background:var(--line);color:var(--ink)}
+.chip.exc{background:none;border-style:dashed;color:var(--ink2)}
+.chip.exc span.t{text-decoration:line-through;text-decoration-color:var(--against)}
+.chip.unm{opacity:.65;border-style:dotted}
+.empty{font-size:13px;color:var(--ink3);font-style:italic}
+.search{position:relative}
+.search input{width:100%;border:1px solid var(--line2);border-radius:8px;padding:9px 11px;background:var(--paper)}
+.ac{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--line2);border-radius:10px;box-shadow:0 12px 30px -12px rgba(20,20,70,.35);z-index:20;max-height:330px;overflow:auto;display:none}
+.ac.on{display:block}
+.ac .it{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);align-items:center}
+.ac .it:last-child{border-bottom:0}
+.ac .it.act{background:var(--majs)}
+.ac .nm{font-size:13.5px}
+.ac .en{font-size:12px;color:var(--ink3)}
+.ctx{display:grid;gap:10px}
+.ctx .seg{flex-wrap:wrap}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.check input{width:17px;height:17px;accent-color:var(--maj)}
+/* ---------- results ---------- */
+.res{min-width:0}
+.lead{padding:22px 24px;margin-bottom:18px}
+.lead .k{font-size:13px;color:var(--ink3);margin:0 0 2px}
+.lead h1{font:500 34px/1.1 var(--serif);margin:0;letter-spacing:-.01em}
+.lead .meta{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;margin-top:10px;color:var(--ink2);font-size:14px}
+.lead .pct{font:600 30px/1 var(--serif);color:var(--maj)}
+.flag{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+.flag.tr{background:var(--fors);color:var(--for)}
+.flag.ur{background:var(--saffs);color:var(--saff)}
+.flag.add{background:var(--sunk);color:var(--ink3);font-weight:400}
+.intro{padding:28px 28px 26px}
+.intro h1{font:500 34px/1.12 var(--serif);margin:0 0 10px;max-width:22ch;letter-spacing:-.01em}
+.intro p{max-width:64ch;color:var(--ink2);margin:0 0 12px}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px;border-top:1px solid var(--line);padding-top:18px}
+.how div{font-size:13.5px;color:var(--ink2)}
+.how b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+.ddx{padding:6px 0 4px}
+.ddx-h{display:flex;justify-content:space-between;align-items:center;padding:12px 20px 8px;gap:10px;flex-wrap:wrap}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--ink3);flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.dr{display:grid;grid-template-columns:28px minmax(170px,1.2fr) 74px minmax(160px,1.6fr);gap:12px;align-items:center;padding:11px 20px;border-top:1px solid var(--line);cursor:pointer}
+.dr:hover{background:color-mix(in srgb,var(--sunk) 60%,transparent)}
+.dr .rk{font:500 18px/1 var(--serif);color:var(--ink3);text-align:right}
+.dr .nm{font-weight:700;font-size:14.5px;line-height:1.25}
+.dr .gn{font-size:12px;color:var(--ink3);margin-top:2px}
+.dr .p{font:600 18px/1 var(--serif);text-align:right;font-variant-numeric:tabular-nums}
+.dr .p small{display:block;font:11px var(--sans);color:var(--ink3);margin-top:3px}
+.dr.top .p{color:var(--maj)}
+.dr.oth .nm{color:var(--ink2);font-weight:400;font-style:italic}
+.strip{width:100%;height:22px;display:block}
+.ledger{grid-column:1/-1;padding:4px 0 8px 40px;cursor:default}
+table{border-collapse:collapse;width:100%}
+.tbl{overflow-x:auto}
+.tbl table{font-size:13px}
+.tbl th{text-align:left;font-weight:700;color:var(--ink3);font-size:12px;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pos{color:var(--for);font-weight:700}.neg{color:var(--against);font-weight:700}
+.fbar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}
+.fbar i{display:block;height:100%;background:var(--maj)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.card{padding:18px 20px}
+.nq{display:grid;gap:0}
+.nq .q{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.nq .q:first-child{border-top:0}
+.nq .qt{font-weight:700;font-size:14px}
+.nq .qw{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.gain{display:inline-block;height:4px;border-radius:2px;background:var(--saff);vertical-align:middle;margin-right:6px}
+.ai-out{font-size:14px;line-height:1.55;color:var(--ink)}
+.ai-out h4{font:600 15.5px/1.3 var(--serif);margin:14px 0 4px}
+.ai-out ul{margin:4px 0 6px;padding-left:18px}
+.ai-out p{margin:4px 0 8px}
+.ai-out .src{color:var(--maj);font-weight:700;font-size:12px}
+.notice{font-size:12.5px;color:var(--ink3);border-left:3px solid var(--line2);padding:2px 0 2px 10px;margin-top:10px}
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(14,15,42,.38);z-index:40;display:none}
+.scrim.on{display:block}
+aside.drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:var(--surface);z-index:41;transform:translateX(102%);transition:transform .28s ease;overflow:auto;border-left:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 22px) 26px calc(env(safe-area-inset-bottom,0px) + 30px)}
+aside.drawer.on{transform:none}
+@media (prefers-reduced-motion: reduce){aside.drawer{transition:none}}
+.drawer h2{font:500 28px/1.12 var(--serif);margin:6px 0 4px}
+.drawer h3{font:600 16px/1.3 var(--serif);margin:22px 0 6px}
+.drawer .en{color:var(--ink3);font-size:13px}
+.drawer .x{position:sticky;top:0;float:right}
+.genes{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.gene{font-weight:700;font-size:12.5px;border:1px solid var(--line2);border-radius:5px;padding:1px 7px;font-style:italic}
+.links{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+ol.steps{padding-left:20px;margin:6px 0}
+ol.steps li{margin:3px 0}
+.ann{display:grid;grid-template-columns:1fr 64px;gap:4px 10px;font-size:13px}
+.ann .m{color:var(--for);font-weight:700}
+.ann .c{color:var(--saff)}
+/* ---------- other views ---------- */
+.vh{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.vh h1{font:500 32px/1.1 var(--serif);margin:0;letter-spacing:-.01em}
+.vh p{margin:6px 0 0;color:var(--ink2);max-width:70ch}
+#graph{width:100%;height:min(72vh,720px);display:block}
+.graphwrap{position:relative;overflow:hidden}
+.gtip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:6px 9px;font-size:12.5px;display:none;max-width:260px;box-shadow:0 8px 24px -10px rgba(0,0,0,.3)}
+.stats{display:flex;flex-wrap:wrap;gap:28px;margin:4px 0 18px}
+.stats div{font-size:13px;color:var(--ink3)}
+.stats b{display:block;font:500 26px/1.1 var(--serif);color:var(--ink)}
+.kb td .nm{font-weight:700}
+.kb tr{cursor:pointer}
+.kb tr:hover td{background:var(--sunk)}
+.metrics{display:flex;gap:30px;flex-wrap:wrap;margin:6px 0 10px}
+.metrics div{font-size:13px;color:var(--ink3)}
+.metrics b{display:block;font:500 30px/1.1 var(--serif);color:var(--ink)}
+.heat{overflow-x:auto}
+.heat table{font-size:11px;border-collapse:separate;border-spacing:2px}
+.heat td{width:22px;height:20px;border-radius:3px;text-align:center;color:var(--ink)}
+.heat th{font-weight:400;color:var(--ink3);white-space:nowrap;padding:0 6px 0 0;text-align:right}
+.heat thead th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;padding:4px 0;height:110px}
+.ok{color:var(--for);font-weight:700}.ko{color:var(--against);font-weight:700}
+.proj h2{font:500 24px/1.2 var(--serif);margin:34px 0 10px}
+.proj p{max-width:72ch;color:var(--ink2)}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:16px 0}
+.facts div{border-top:2px solid var(--maj);padding-top:10px;font-size:13.5px;color:var(--ink2)}
+.facts b{display:block;font:500 30px/1.05 var(--serif);color:var(--ink);margin-bottom:4px}
+.road{position:relative;padding:10px 0 4px}
+.road .ax{display:grid;grid-template-columns:repeat(12,1fr);font-size:11.5px;color:var(--ink3);border-bottom:1px solid var(--line);padding-bottom:4px}
+.road .ph{display:grid;grid-template-columns:repeat(12,1fr);row-gap:4px;margin-top:12px}
+.road .rbar{grid-row:1;height:10px;border-radius:5px;background:var(--line2)}
+.road .rbar.done{background:var(--maj)}
+.road .lb{grid-row:2;font-size:12.5px;color:var(--ink2);line-height:1.35}
+.road .lb b{color:var(--ink);margin-right:6px}
+.road .lb .flag{margin-left:4px;font-size:11px}
+.arch{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:10px 0}
+.arch div{border:1px solid var(--line);border-radius:8px;padding:10px 11px;font-size:12.5px;color:var(--ink2);background:var(--surface);position:relative}
+.arch div b{display:block;color:var(--ink);font-size:13.5px;margin-bottom:3px}
+.arch div em{display:block;font-style:normal;color:var(--maj);margin-top:6px;font-size:12px}
+.arch div:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:8px;height:1px;background:var(--line2)}
+.vig{counter-reset:v;display:grid;gap:14px;margin-top:8px}
+.vig div{padding:14px 16px;border-left:3px solid var(--saff);background:var(--surface);border-radius:0 8px 8px 0}
+.vig b{display:block;font-size:14.5px;margin-bottom:3px}
+.vig p{margin:0;font-size:14px}
+.kpi{display:grid;gap:0}
+.kpi .r{display:grid;grid-template-columns:1.2fr 2fr 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 14px;border-radius:8px;font-size:13.5px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+footer{max-width:1440px;margin:0 auto;padding:0 24px 30px;font-size:12px;color:var(--ink3)}
+@media (max-width:1080px){
+  .diag{grid-template-columns:1fr}
+  .patient{position:static;max-height:none}
+  .two{grid-template-columns:1fr}
+  .arch{grid-template-columns:repeat(2,1fr)}
+  .arch div::after{display:none}
+  .facts{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  header.top{position:static}
+  html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 8px)}
+  .bar{padding:8px 14px;gap:12px;flex-wrap:wrap}
+  .brand small{display:none}
+  nav.tabs{order:3;flex-basis:100%}
+  main{padding:16px 14px 50px}
+  .dr{grid-template-columns:22px 1fr 60px;padding:10px 14px}
+  .dr .stripc{grid-column:2/-1}
+  .ledger{padding-left:0}
+  .how{grid-template-columns:1fr}
+  .lead h1,.intro h1{font-size:27px}
+  .kpi .r{grid-template-columns:1fr}
+  .road .lb{font-size:11.5px}
+}
+[hidden]{display:none!important}
+.lnk{background:none;border:0;padding:0;font:inherit;color:var(--maj);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="#" aria-label="Silsila, accueil">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="var(--maj)" stroke-width="2.2"><rect x="9" y="9" width="22" height="22" rx="1.5"/><rect x="9" y="9" width="22" height="22" rx="1.5" transform="rotate(45 20 20)"/><circle cx="20" cy="20" r="5.2" fill="var(--maj)" stroke="none"/></g></svg>
+      <span><b>Silsila</b><small>Aide au diagnostic des maladies génétiques rares au Maghreb</small></span>
+    </a>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" data-tab="diag" aria-selected="true">Diagnostic</button>
+      <button role="tab" data-tab="graph" aria-selected="false">Graphe</button>
+      <button role="tab" data-tab="kb" aria-selected="false">Base de connaissances</button>
+      <button role="tab" data-tab="val" aria-selected="false">Validation</button>
+      <button role="tab" data-tab="proj" aria-selected="false">Projet</button>
+    </nav>
+    <div class="calib">
+      <span id="calibLbl">Probabilités a priori</span>
+      <div class="seg" role="group" aria-labelledby="calibLbl">
+        <button data-mode="maghreb" aria-pressed="true">Maghreb</button>
+        <button data-mode="global" aria-pressed="false">Mondial</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ===================== DIAGNOSTIC ===================== -->
+<section class="view on" id="v-diag" role="tabpanel">
+  <div class="diag">
+    <div class="panel patient" aria-label="Patient">
+      <h2>Patient</h2>
+      <p class="hint">Collez une observation (français, anglais ou darija) ou ajoutez les signes un par un. Aucune donnée ne quitte la page sauf si vous lancez l'analyse par Claude.</p>
+      <label class="lbl" for="note">Observation clinique</label>
+      <textarea id="note" placeholder="Ex. Garçon de 11 ans, parents cousins. Démarche ataxique avec aréflexie, pas de cardiomyopathie…"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn pri" id="bExtract">Extraire les signes</button>
+        <button class="btn" id="bAI" hidden>Analyser avec Claude</button>
+      </div>
+      <div class="status" id="nlpStatus" aria-live="polite"></div>
+      <span class="lbl">Cas d'exemple</span>
+      <div class="demos" id="demos"></div>
+
+      <span class="lbl">Signes présents</span>
+      <div class="chips" id="obsChips"></div>
+      <span class="lbl">Signes absents (explicitement recherchés)</span>
+      <div class="chips" id="excChips"></div>
+
+      <label class="lbl" for="q">Ajouter un signe (terme HPO)</label>
+      <div class="search">
+        <input type="search" id="q" autocomplete="off" placeholder="Surdité, ataxie, HP:0000662…" aria-autocomplete="list" aria-controls="ac">
+        <div class="ac" id="ac" role="listbox"></div>
+      </div>
+      <p class="hint" style="margin-top:6px">Entrée : présent. Maj + Entrée : absent.</p>
+
+      <div class="ctx">
+        <div><span class="lbl">Âge de début des symptômes</span>
+          <div class="seg" id="onsetSeg" role="group" aria-label="Âge de début">
+            <button data-v="">Inconnu</button><button data-v="neo">Néonatal</button><button data-v="inf">Nourrisson</button><button data-v="child">1–5 ans</button><button data-v="juv">5–15 ans</button><button data-v="adult">Adulte</button>
+          </div></div>
+        <div><span class="lbl">Parents apparentés (consanguinité)</span>
+          <div class="seg" id="consSeg" role="group" aria-label="Consanguinité">
+            <button data-v="unk">Inconnu</button><button data-v="yes">Oui</button><button data-v="no">Non</button>
+          </div></div>
+        <label class="check"><input type="checkbox" id="sib"> Frère ou sœur atteint(e) du même tableau</label>
+      </div>
+      <div class="row" style="margin-top:16px;justify-content:space-between">
+        <button class="btn ghost" id="bReset">Effacer le cas</button>
+        <button class="btn" id="bExport" hidden>Exporter le compte rendu</button>
+      </div>
+    </div>
+
+    <div class="res" id="results" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ===================== GRAPH ===================== -->
+<section class="view" id="v-graph" role="tabpanel">
+  <div class="vh">
+    <div><h1>Graphe de connaissances</h1>
+    <p>La chaîne de preuves du cas : chaque signe relié aux hypothèses qu’il soutient. Trait plein : correspondance HPO directe ou hiérarchique. Pointillé vert : signe proche (ancêtre commun). Pointillé rouge : signe qui pénalise l’hypothèse. La vue « Base complète » montre les maladies, leurs gènes et les signes partagés.</p></div>
+    <div class="seg" id="gMode" role="group" aria-label="Contenu du graphe"><button data-v="case" aria-pressed="true">Cas actuel</button><button data-v="kb" aria-pressed="false">Base complète</button></div>
+  </div>
+  <div class="panel graphwrap"><svg id="graph" role="img" aria-label="Graphe signes, maladies et gènes"></svg><div class="gtip" id="gtip"></div></div>
+</section>
+
+<!-- ===================== KB ===================== -->
+<section class="view" id="v-kb" role="tabpanel">
+  <div class="vh"><div><h1>Base de connaissances</h1>
+  <p>Annotations phénotypiques importées de la Human Phenotype Ontology (sources Orphanet et OMIM), enrichies d'une couche Maghreb : prévalences estimées, variants fondateurs, examens de confirmation. Cliquez une ligne pour la fiche.</p></div></div>
+  <div class="stats" id="kbStats"></div>
+  <div class="panel tbl kb"><table id="kbTable"></table></div>
+</section>
+
+<!-- ===================== VALIDATION ===================== -->
+<section class="view" id="v-val" role="tabpanel">
+  <div class="vh"><div><h1>Validation</h1>
+  <p>Deux niveaux : des cas de référence construits à la main, puis des patients simulés bruités pour mesurer la robustesse. Ce sont des bornes hautes : la vraie validation se fera sur des cas publiés marocains et en pilote.</p></div></div>
+  <div class="panel card"><h2>Cas de référence</h2><div id="refSummary" class="metrics"></div><div class="tbl" id="refTable"></div></div>
+  <div class="panel card" style="margin-top:18px">
+    <div class="row" style="justify-content:space-between"><h2>Robustesse sur patients simulés</h2><button class="btn pri" id="bSim">Simuler 800 patients</button></div>
+    <p class="hint">Pour chaque maladie, 40 patients : signes tirés selon leurs fréquences HPO, 30 % remplacés par un terme plus général, un signe parasite une fois sur deux, âge de début parfois manquant, consanguinité inconnue.</p>
+    <div id="simOut"></div>
+  </div>
+  <div class="panel card" style="margin-top:18px"><h2>Méthode de score</h2><div id="method" class="proj"></div></div>
+</section>
+
+<!-- ===================== PROJECT ===================== -->
+<section class="view proj" id="v-proj" role="tabpanel"></section>
+</main>
+<footer>Prototype de recherche. Ne remplace pas l'avis d'un généticien. Données : Human Phenotype Ontology (hpo.jax.org), annotations Orphanet et OMIM via HPO ; couche Maghreb issue du dossier projet, à valider.</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog" aria-labelledby="dTitle"></aside>
+<div class="toast" id="toast" role="status"></div>
