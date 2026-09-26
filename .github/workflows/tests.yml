@@ -1,0 +1,23 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cas de référence, simulation et extraction
+        run: make test
+      - name: docs/index.html correspond aux sources
+        run: |
+          make build
+          git diff --exit-code docs/index.html || (echo "Lancez 'make build' et commitez docs/index.html" && exit 1)
